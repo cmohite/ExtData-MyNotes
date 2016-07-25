@@ -1,0 +1,279 @@
+---
+title: "Data Analysis in R - Lession 3"
+author: "Udacity Course"
+date: "Friday, July 22, 2016"
+output: pdf_document
+---
+
+This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+
+When you click the **Knit** button a document will be generated that includes both content as well as the output of any embedded R code chunks within the document. You can embed an R code chunk like this:
+
+```{r}
+summary(cars)
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(cars)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+```{r}
+list.files()
+pf <- read.csv("./pseudo_facebook.tsv",sep='\t')
+names(pf)
+```
+
+```{r}
+library(ggplot2)
+names(pf)
+qplot(x = dob_day, data = pf, color = 'blue')
+```
+
+```{r}
+install.packages('ggthemes', dependencies = TRUE)
+library(ggthemes)
+theme_set(theme_minimal(24))
+
+qplot(x = dob_day, data = pf, color = 'blue')
+```
+
+```{r}
+theme_set(theme_economist(10))
+ggplot(aes(x = dob_day), data = pf) +
+    geom_histogram(binwidth = 2) +
+    scale_x_continuous(breaks = 1:31)
+```
+
+
+```{r}
+theme_set(theme_linedraw(10))
+qplot(x = dob_day, data = pf, color = 'blue') +
+    scale_x_continuous(breaks = 1:31)
+```
+
+
+```{r}
+theme_set(theme_linedraw(10))
+qplot(x = dob_day, data = pf, color = 'blue') +
+    scale_x_continuous(breaks = 1:31) +
+    facet_wrap(~ dob_month, ncol = 3)
+```
+
+```{r}
+ggplot(aes(x = friend_count), data=pf) +
+    geom_histogram()
+```
+
+```{r}
+qplot(x=friend_count, data=pf, xlim=c(0, 1000))
+```
+
+```{r}
+qplot(x=friend_count, data = df) +
+    scale_x_continuous(limits = c(0,1000))
+```
+
+```{r}
+qplot(x=friend_count, data = subset(pf, !is.na(gender)),
+      binwidth=10) +
+    scale_x_continuous(limits = c(0,1000), breaks=seq(0,1000,50)) +
+    facet_wrap(~gender)
+```
+
+```{r}
+table(pf$gender)
+by(pf$friend_count, pf$gender, summary)
+```
+
+```{r}
+qplot(x=tenure, data=pf, binwidth=30,
+      color= I('black'), fill= I('#099009'))
+
+```
+
+```{r}
+pf$tenure_years = pf$tenure / 365
+qplot(x=tenure_years, data=pf, binwidth=1,
+      color= I('black'), fill= I('orange'))
+```
+
+```{r}
+qplot(x=tenure_years, data=pf, binwidth=0.25,
+      xlab = 'Number of years using Facebook',
+      ylab = 'Number of users in sample',
+      color= I('black'), fill= I('orange')) +
+    scale_x_continuous(breaks = seq(1,7,1), limits=c(0,7))
+```
+
+```{r}
+qplot(x=age, data=pf,
+      color = I('blue'), fill=I('green')) 
+```
+
+```{r}
+qplot(x=age, data=pf, binwidth=1,
+      color = I('blue'), fill=I('green'))  +
+    scale_x_continuous(limits=c(0,120), breaks=seq(0,120,5))
+```
+
+```{r}
+qplot(x=friend_count, data=pf)
+summary(pf$friend_count)
+summary(log10(pf$friend_count))
+summary(log10(pf$friend_count + 1))
+
+summary(sqrt(pf$friend_count))
+```
+
+```{r}
+install.packages('gridExtra')
+library(gridExtra)
+fcount <- qplot(x=friend_count, data = pf)
+log10fcount <- qplot(x=log10(friend_count), data=pf)
+sqrtfcount <- qplot(x=sqrt(friend_count), data=pf)
+grid.arrange(fcount, log10fcount, sqrtfcount)
+```
+```{r}
+p1 <- ggplot(aes(x=friend_count), data = pf) +
+    geom_histogram()
+p2 <- p1 + scale_x_log10()
+p3 <- p1 + scale_x_sqrt()
+grid.arrange(p1,p2,p3, ncol=1)
+
+```
+
+```{r}
+qplot(x=friend_count, data = subset(pf, !is.na(gender)),
+      binwidth=10, color=gender) +
+    scale_x_continuous(limits = c(0,1000), breaks=seq(0,1000,50))
+```
+
+```{r}
+qplot(x=friend_count, data = subset(pf, !is.na(gender)),
+      binwidth=10, color=gender, geom='freqpoly') +
+    scale_x_continuous(limits = c(0,1000), breaks=seq(0,1000,50))
+```
+
+
+```{r}
+qplot(x=friend_count, y = ..count../(sum(..count..)), 
+      data = subset(pf, !is.na(gender)),
+      binwidth=10, color=gender, geom='freqpoly') +
+    scale_x_continuous(limits = c(0,1000), breaks=seq(0,1000,10))
+
+```
+
+
+```{r}
+names(pf)
+max(pf$www_likes)
+
+qplot(x=www_likes, data = subset(pf, !is.na(gender)),
+      color=gender, geom='freqpoly')
+```
+
+```{r}
+qplot(x=www_likes, #y= ..count../sum(..count..),
+     data = subset(pf, !is.na(gender)),
+     color=gender, geom='freqpoly') + 
+    scale_x_log10()
+```
+
+
+```{r}
+qplot(x=www_likes, y = ..count../sum(..count..),
+     data = subset(pf, !is.na(gender)),
+      binwidth=10,color=gender, geom='freqpoly') + 
+    scale_x_sqrt()
+```
+
+```{r}
+by(pf$www_likes, pf$gender, sum)
+```
+
+# boxplot
+
+```{r}
+qplot(x=gender, y=friend_count, 
+      data = subset(pf, !is.na(gender)), 
+      geom='boxplot',
+      ylim=c(0,1000))
+```
+
+
+```{r}
+qplot(x=gender, y=friend_count, 
+      data = subset(pf, !is.na(gender)), geom='boxplot') +
+    scale_y_continuous(limits=c(0,1000))
+```
+
+```{r}
+qplot(x=gender, y=friend_count, 
+      data = subset(pf, !is.na(gender)), geom='boxplot') +
+    coord_cartesian(ylim = c(0,1000))
+```
+
+```{r}
+qplot(x = friendships_initiated, 
+      data = subset(pf, !is.na(gender))
+      )
+
+max(pf$friendships_initiated)
+
+qplot(x = friendships_initiated, 
+      data = subset(pf, !is.na(gender))
+     ) +
+    scale_x_continuous(limits=c(0, 4144))
+
+qplot(x = friendships_initiated, 
+      data = subset(pf, !is.na(gender)),
+      color = gender
+     ) +
+    scale_x_log10()
+
+qplot(x = friendships_initiated, 
+      data = subset(pf, !is.na(gender)),
+      color = gender, geom='freqpoly'
+     ) +
+    scale_x_log10()
+
+by(pf$friendships_initiated, pf$gender, summary)
+
+qplot(x = gender, y = friendships_initiated,
+      data = subset(pf, !is.na(gender)),
+      geom = 'boxplot'
+     ) +
+    coord_cartesian(ylim = c(0,1000))
+
+qplot(x = gender, y = friendships_initiated,
+      data = subset(pf, !is.na(gender)),
+      geom = 'boxplot'
+     ) +
+    coord_cartesian(ylim = c(0,250))
+```
+
+```{r}
+names(pf)
+
+summary(pf$mobile_likes)
+
+summary(pf$mobile_likes > 0)
+
+pf$mobile_check_in <- NA
+
+pf$mobile_check_in <- ifelse(pf$mobile_likes > 0,1,0)
+pf$mobile_check_in <- factor(pf$mobile_check_in)
+summary(pf$mobile_check_in)
+
+total_chk_ins <- length(pf$mobile_check_in)
+
+sum(pf$mobile_check_in==1)/total_chk_ins
+```
+
+
+
+
